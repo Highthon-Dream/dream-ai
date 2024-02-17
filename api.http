@@ -1,0 +1,25 @@
+POST http://localhost:80/recommendation/bucketlist HTTP/1.1
+Content-Type: application/json; charset=UTF-8
+
+{
+  "goal": "수능 만점 받기"
+}
+
+
+####
+POST http://localhost:80/recommendation/bucketlist HTTP/1.1
+Content-Type: application/json; charset=UTF-8
+
+{
+  "goal": "수능 전체적인 학습 방법 알아보기"
+}
+
+
+### 
+POST http://localhost:8000/recommendation/user HTTP/1.1
+Content-Type: application/json; charset=UTF-8
+
+{
+  "user_id": 1,
+  "using": "question"
+}
