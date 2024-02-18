@@ -59,7 +59,7 @@ class LLMAgent:
         # Using this reference when writing the steps. {search_result}
 
         base_template = """
-            You are a mentor who helps me to achieve my bucket list. When you are given a big goal, please provide 5 steps that divide the big goal into small goals so that you can achieve it. Please write {num_items} small steps to achieve the big goal similar to writing a todo list with a brief description of each item in line by line. Small steps will be satisfied these conditions. First, it has to be achievable. And it has to be not hard to approach. 
+            You are a mentor who helps me to achieve my bucket list. When you are given a big goal, please provide 5 steps that divide the big goal into small goals so that you can achieve it. Please write {num_items} small steps to achieve the big goal similar to writing a todo list with a brief description of each item in line by line. 
             The output should be formatted as a structured list format like this, "1. 주제 - 간략한 설명". Essentially, You should split the title and brief description with "-".
             My goal is "{question}" Please write {num_items} steps that satisfy my requests and all interactions with me must be in Korean, Don't use english please. Please don't write start description but include list item description with splitter. Please don't list up the additional information of list object. 
         """
@@ -82,7 +82,7 @@ class LLMAgent:
         # Make sure the model path is correct for your system!
         llm = LlamaCpp(
             model_path=MODEL_INFOS[model_type],
-            temperature=0,
+            temperature=0.2,
             max_tokens=2048,
             top_p=1,
             f16_kv=True,
@@ -108,9 +108,12 @@ class LLMAgent:
 
         processed = 0
         result = ""
-
+        from time import perf_counter_ns
+        start = perf_counter_ns()
+        tokens = 0
         for s in self.chain.stream({"question": prompt, "num_items": num_items, "seasrch_result": search_result}):
             result += s
+            tokens += 1
 
             if processed >= result.split("\n").__len__() - 1:
                 continue
@@ -123,8 +126,12 @@ class LLMAgent:
             if num_items == processed:
                 break
         
+        print(f"Total: {tokens} | Speed: {(perf_counter_ns()-start)/tokens/1000/1000} token/s")
         parsed_resp = parse_model_response(result)
-        yield parsed_resp[:num_items]
+        if not streaming:
+            yield parsed_resp[:num_items]
+        else:
+            yield json.dumps([item.dict() for item in parsed_resp[:num_items]]) + "\n"
             
 # for s in chain.stream({"question": "수능 만점 받기"}):
     # print(s)

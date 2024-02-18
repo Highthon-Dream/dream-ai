@@ -75,7 +75,7 @@ class RecommendationSystem():
         self.load_user()
 
         self.custom_emb_net = nn.Embedding(10000, 128)
-        self.custom_emb_net.load_state_dict(torch.load("pretrained-embedding.pt"))
+        self.custom_emb_net.load_state_dict(torch.load("/Users/ysh/Desktop/fun/bucketlist_ai/model_store/pretrained-embedding.pt"))
         self.tokenizer = load_tokenizer()
 
     def recommend_user(self, user_id, data):
@@ -91,10 +91,11 @@ class RecommendationSystem():
         tokenized = [tokenize(self.tokenizer, post) for post in posts]
         custom_emb_result = []
         for sen in tokenized:
-            sen = torch.tensor(sen).unsqueeze(0)
-            tmp = self.custom_emb_net(sen).sum(1).squeeze(0)
+            sen = torch.tensor(sen, dtype=torch.int)
+            sen = F.pad(sen, (0, 20-sen.shape[0]), "constant").unsqueeze(0)
+            tmp = self.custom_emb_net(sen).mean(1).squeeze(0)
             custom_emb_result.append(tmp)
-        custom_emb_result = torch.cat(custom_emb_result)
+        custom_emb_result = torch.stack(custom_emb_result)
         embs = self.emb_model.get_embs(posts)
         keys = list(post_data.keys())
         idx = keys.index(user_id)

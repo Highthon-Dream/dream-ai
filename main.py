@@ -28,7 +28,7 @@ password = '1234'
 database = 'weego'
 client = make_client(host, username, password, database)
 
-agent = LLMAgent("koalpaca")
+agent = LLMAgent("mistral")
 recommendation_system = RecommendationSystem(client=client)
 
 class BucketListReq(BaseModel):

@@ -1,6 +1,6 @@
 import sentencepiece as spm
 
-def load_tokenizer(vocab_file="wiki_tokenizer.model"):
+def load_tokenizer(vocab_file="./app/nlp/wiki_tokenizer.model"):
     sp = spm.SentencePieceProcessor()
     sp.load(vocab_file)
 

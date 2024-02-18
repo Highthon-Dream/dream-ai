@@ -3,7 +3,7 @@ import datetime
 
 # === CONFIGS ====
 
-MODEL_INFOS = {"mistral": "/Users/ysh/Desktop/fun/bucketlist_ai/model_store/mistral-7b-instruct-v0.2.Q2_K.gguf", "vicuna": "/Users/ysh/Desktop/fun/bucketlist_ai/model_store/vicuna-13b-v1.5.Q2_K.gguf", "koalpaca": "/Users/ysh/Desktop/fun/bucketlist_ai/model_store/koalpaca.gguf"}
+MODEL_INFOS = {"mistral": "/Users/ysh/Desktop/fun/bucketlist_ai/model_store/mistral-7b-instruct-v0.2.Q2_K.gguf", "vicuna": "/Users/ysh/Desktop/fun/bucketlist_ai/model_store/vicuna-13b-v1.5.Q2_K.gguf", "koalpaca": "/Users/ysh/Desktop/fun/bucketlist_ai/model_store/koalpaca.gguf", "mistral-Q8": "/Users/ysh/Desktop/fun/bucketlist_ai/model_store/mistral-7b-instruct-v0.2.Q8_0.gguf", "phi-2": "/Users/ysh/Desktop/fun/bucketlist_ai/model_store/phi-2.Q5_K_M.gguf"}
 
 
 # === USER ====
