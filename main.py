@@ -28,7 +28,7 @@ password = '1234'
 database = 'weego'
 client = make_client(host, username, password, database)
 
-agent = LLMAgent("mistral")
+agent = LLMAgent("koalpaca")
 recommendation_system = RecommendationSystem(client=client)
 
 class BucketListReq(BaseModel):
@@ -40,7 +40,7 @@ class BucketListReq(BaseModel):
 @app.post("/recommendation/bucketlist")
 async def specify_bucketlist(req: BucketListReq):
     """
-        About 10~16 for full response.
+        About 10~16s for full response.
     """
     if not req.streaming:
         bucketlist_recommendation = [i for i in agent.get_answer(req.goal, search=req.search, num_items=req.num_items, streaming=False)][0]

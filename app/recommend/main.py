@@ -1,11 +1,15 @@
 #! /usr/bin/env python
 import numpy as np
 from scipy.sparse.linalg import svds
+import torch
 import torch.nn.functional as F
+import torch.nn as nn
+import sentencepiece as spm
 
 from ..db.client import MySQLClient
 from ..types import UserItem, UserOject, QuestinoTemplate, BucketListObject
 from ..nlp.embedding import load_embedding_model, EmbeddingModel
+from ..nlp.tokenizer import load_tokenizer, tokenize
 
 def parsing_db(raw_data) -> UserItem:
     print(raw_data)
@@ -70,6 +74,10 @@ class RecommendationSystem():
         self.emb_model: EmbeddingModel = load_embedding_model()
         self.load_user()
 
+        self.custom_emb_net = nn.Embedding(10000, 128)
+        self.custom_emb_net.load_state_dict(torch.load("pretrained-embedding.pt"))
+        self.tokenizer = load_tokenizer()
+
     def recommend_user(self, user_id, data):
         # title - content => get embedding
         post_data = {user.id: "" for user in self.users}
@@ -79,13 +87,21 @@ class RecommendationSystem():
             post_data[writer_id] += f"{title}: {content}\n"
 
         posts = [item for (_, item) in post_data.items()]
+
+        tokenized = [tokenize(self.tokenizer, post) for post in posts]
+        custom_emb_result = []
+        for sen in tokenized:
+            sen = torch.tensor(sen).unsqueeze(0)
+            tmp = self.custom_emb_net(sen).sum(1).squeeze(0)
+            custom_emb_result.append(tmp)
+        custom_emb_result = torch.cat(custom_emb_result)
         embs = self.emb_model.get_embs(posts)
         keys = list(post_data.keys())
         idx = keys.index(user_id)
         # print(embs.shape)
         # ranking = matrix_factorization(embs)[idx]
         # print(ranking)
-        sim = F.cosine_similarity(embs[idx], embs).detach().numpy()
+        sim = F.cosine_similarity(embs[idx], embs).detach().numpy() + F.cosine_similarity(custom_emb_result[idx], custom_emb_result).detach().numpy()
         sim[idx] = 0
         ranking = np.argsort(-sim)[:-1]
         ranked_user = [self.users[idx] for idx in ranking]
